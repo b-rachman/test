@@ -13,10 +13,7 @@ shopRouter.post('/create',async(req,res)=>{
     try {
         const{
             shoppingDate,
-            shoppingName,
-            dataDate,
-            dataId,
-            dataName
+            shoppingName
         } = req.body
 
         var token = req.headers['x-access-token']
@@ -25,27 +22,18 @@ shopRouter.post('/create',async(req,res)=>{
         jwt.verify(token,Conf.secret,async(err,decode)=>{
             if(err)
                 return res.status(500).send({ auth: false, message: 'Failed to authenticate token!'})
-            const shop_date = shoppingDate
-            const shop_name = shoppingName
-            const createddate = dataDate
-            const id = dataId
-            const data_name = dataName
+            const createddate = shoppingDate
+            const name = shoppingName
 
             const createdShopping = new Shop({
                 shopping:{
-                    shop_date,
-                    shop_name
-                },
-                data:{
                     createddate,
-                    id,
-                    data_name
+                    name
                 }
             })
-
             const savedShopping = await createdShopping.save()
 
-            res.status(200).json({ message: 'Berhasil membuat daftar belanja!' })
+            res.status(200).json({ data:{"createddate":createddate,"name":name} })
         })
     } catch (error) {
         res.status(500).json({ error: error })
@@ -108,9 +96,10 @@ shopRouter.put('/:id',async(req,res)=>{
                 return res.status(500).send({ auth: false, message: 'Failed to authenticate token!' })
             
             const shop = await Shop.findById(req.params.id)
-            const {shop_date}=req.body
+            const {createddate,name}=req.body
             if(shop){
-                shop.shop_date = shop_date
+                shop.createddate = createddate
+                shop.name = name
                 const updateShop = await shop.save()
                 res.status(200).send(updatedShop)
             } 
